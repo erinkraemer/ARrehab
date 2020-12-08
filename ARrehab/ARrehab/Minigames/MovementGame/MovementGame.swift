@@ -15,7 +15,18 @@ import Dispatch
 Movement Game Entity holds a representatioin of where the user needs to go and the detection mechanism to determine if the user has completed the action.
  */
 class MovementGame : Minigame {
-    
+   //list of TracePoints that make up this target.
+   var pointCloud : [MovePoint] = []
+   /// Collision group for the TracePoints
+   var pointCollisionGroup : CollisionGroup
+   /// Collision group for the laser.
+//   var laserCollisionGroup : CollisionGroup
+//   // The laser that interacts with the TracePoints.
+//   var laser : Laser
+   /// Total number of points in the pointCloud
+   var total : Int
+   /// Total number of points still active
+   var active : Int
     /// Collision group for the MovementTarget
     var targetCollisionGroup : CollisionGroup
     /// Collision subscriptions
@@ -35,37 +46,39 @@ class MovementGame : Minigame {
         }
     }
     /// Number of movements to complete
-    var total : Int
+    //var total : Int
     /// Coaching state
     @Published
     var coachingState : MovementState
     
     var timer: Timer? = nil
     
-    var targets : [TraceTargetType] = [.loot, .berries, .potion, .other]
+    var targets : [MovementTargetType] = [.colorful, .blueMarble, .tealMarble, .yellowMarble, .orangeMarble]
     
     convenience required init() {
         self.init(num: 1)
     }
     
+    
+    
     // Creates the objects to be picked up
     func generateTargets(ground: Entity, player: Entity) {
-        var models : [TraceTargetType : ModelComponent] = [:]
+        var models : [MovementTargetType : ModelComponent] = [:]
         
-        targets.forEach { (targetType) in
-            do {
-                models.updateValue((try Entity.loadModel(named: targetType.modelName).model!), forKey: targetType)
-            } catch {
-                models.updateValue((ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .purple, isMetallic: false)])), forKey: TraceTargetType.other)
-            }
-        }
+//        targets.forEach { (targetType) in
+//            do {
+//                models.updateValue((try Entity.loadModel(named: targetType.modelName).model!), forKey: targetType)
+//            } catch {
+//                models.updateValue((ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .purple, isMetallic: false)])), forKey: MovementTargetType.tealMarble)
+//            }
+//        }
 
         for _ in 1 ... total {
             let (targetType, model) = models.randomElement()!
             let posMin = targetType.minPosition
             let posMax = targetType.maxPosition
             // TODO may be unecessary considering we anchor objects with point.look instead
-            let point : TracePoint = TracePoint(model: model, translation: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), -3, Float.random(in:posMin[2] ... posMax[2])), targetType: targetType) //let everything else be random, but set y so that it is on the ground
+            let point : MovePoint = MovePoint(model: model, translation: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), -3, Float.random(in:posMin[2] ... posMax[2])), targetType: targetType) //let everything else be random, but set y so that it is on the ground
             //point.collision?.filter = CollisionFilter(group: self.pointCollisionGroup, mask: self.laserCollisionGroup)
             //pointCloud.append(point)
             self.addChild(point)
@@ -89,6 +102,7 @@ class MovementGame : Minigame {
     }
     
     required init(num: Int) {
+        self.pointCollisionGroup = CollisionGroup(rawValue: UInt32.random(in: UInt32.min...UInt32.max)) //TODO: Find some way to not rely on generating a random integer
         //TODO: Find some way to not rely on generating a random integer
         self.targetCollisionGroup = CollisionGroup(rawValue: UInt32.random(in: UInt32.min...UInt32.max))
         self.total = num
@@ -96,6 +110,7 @@ class MovementGame : Minigame {
         // TODO see if we even need to create this entity given that our player is already such an entity?
         self.playerCollisionEntity = TriggerVolume(shape: ShapeResource.generateSphere(radius: 0.01), filter: CollisionFilter(group:Player.PLAYER_COLLISION_GROUP, mask: targetCollisionGroup))
         self.coachingState = .up
+        self.active = self.total
         super.init()
         self.progress = [0, 0]
         self.timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
@@ -344,3 +359,56 @@ class MovementTarget : Entity, HasModel, HasCollision {
         print("materials set")
     }
 }
+
+//movepoint
+/*TracePoint Entity is an individual point the laser interacts with.
+  By default, it changes color upon contact to red and to clear after contact ends.
+*/
+class MovePoint : Entity, HasModel, HasCollision {
+   var active = true
+   var targetType : MovementTargetType
+   
+   required convenience init() {
+       self.init(model: ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .cyan, isMetallic: false)]))
+   }
+   
+   init(model : ModelComponent) {
+       self.targetType = .tealMarble
+       super.init()
+       let radius : Float = 0.5
+       self.components[CollisionComponent] = CollisionComponent(shapes: [ShapeResource.generateSphere(radius: model.mesh.bounds.boundingRadius / sqrtf(5)).offsetBy(translation: model.mesh.bounds.center)], mode: .trigger, filter: .default)
+       self.components[ModelComponent] = model
+       let scaleFactor = radius/model.mesh.bounds.boundingRadius
+       self.transform.scale = SIMD3<Float>(scaleFactor, scaleFactor, scaleFactor)
+       self.transform.rotation = simd_quatf(angle: Float.random(in: 5.0 * .pi/6 ... 7.0 * .pi/6), axis: SIMD3<Float>(0,1,0))
+   }
+   
+   required convenience init(translation: SIMD3<Float>) {
+       self.init()
+       self.transform.translation = translation
+   }
+   
+   convenience init(model : ModelComponent, translation: SIMD3<Float>, targetType: MovementTargetType) {
+       self.init(model: model)
+       self.targetType = targetType
+       self.transform.translation = translation
+   }
+   
+   func onCollisionBegan() {
+       if (active) {
+           self.model?.materials = [SimpleMaterial(color: self.targetType.color, isMetallic: false)]
+       }
+   }
+   
+   func onCollisionEnded() {
+       self.model?.materials = [
+           SimpleMaterial(color: .clear, isMetallic: false)
+       ]
+       if (active) {
+           active = false
+           (self.parent as! TraceGame).score()
+       }
+   }
+}
+
+

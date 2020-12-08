@@ -22,6 +22,16 @@ class ViewController: UIViewController {
     
     var boardState : BoardState = .notMapped
     
+    // ERIN EDIT: took required components from persistence to bring in the dragon
+    var dragonAnimations: [String] = ["run", "fly"]
+    var currentObjectIndex: Int = 0
+    
+    var parentNode: SCNNode = SCNNode.init()
+    
+    
+    var virtualPetNodes: [SCNNode] = []
+    var virtualPetAnchors: [ARAnchor] = []
+    // END OF ERIN EDIT
     
     var tileGrid: TileGrid?
     var gameBoard: GameBoard?
@@ -171,6 +181,16 @@ extension ViewController: ARSessionDelegate {
         self.gameBoard = GameBoard(tiles: self.tileGrid!.currentOutline, surfaceAnchor: self.tileGrid!.gridEntity.clone(recursive: false), center: (self.tileGrid?.centerTile!.coords)!)
         self.gameBoard?.addBoardToScene(arView: self.arView)
         
+        // ERIN EDIT: Instantiate pet object in the middle of the gameboard and add it to the scene
+        //func addBoardToScene(arView: ARView) {
+            //arView.scene.addAnchor(self.board)
+        //}
+//        let virtualPetAnchor = ARAnchor(name: "VirtualPetNode", transform: float4x4(SIMD4<Float>(1, 0, 0, 0), SIMD4<Float>(0, 1, 0, 0), SIMD4<Float>(0, 0, 1, 0), SIMD4<Float>(0, -0.2, 0, 1)))
+//        
+//        sceneView.session.add(anchor: virtualPetAnchor)
+    
+        
+        
         //Stop ARWorldTracking, as it is unnecessary from this point onwards (unless you desire further scene understanding for a specific minigame, in which case it can be re-activated)
         let newConfig = ARWorldTrackingConfiguration()
         self.arView.session.run(newConfig)
@@ -179,8 +199,6 @@ extension ViewController: ARSessionDelegate {
         setupMinigames(ground: self.gameBoard!.board.clone(recursive: false))
         //setupMinigames(ground: self.gameBoard!.board)
         self.addMgButton()
-
-            
     }
     
     func setupMinigames(ground: AnchorEntity) {

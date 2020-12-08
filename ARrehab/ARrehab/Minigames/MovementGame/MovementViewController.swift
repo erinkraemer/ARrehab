@@ -20,6 +20,8 @@ class MovementGameViewController : MinigameViewController {
     @IBOutlet var coachImageView: UIImageView!
     /// Progress subscribers
     var subscribers: [Cancellable] = []
+    
+    
 
     private let backgroundView: UIView = {
         let view = PassThroughView()
