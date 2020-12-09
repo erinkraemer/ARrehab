@@ -22,17 +22,6 @@ class ViewController: UIViewController {
     
     var boardState : BoardState = .notMapped
     
-    // ERIN EDIT: took required components from persistence to bring in the dragon
-    var dragonAnimations: [String] = ["run", "fly"]
-    var currentObjectIndex: Int = 0
-    
-    var parentNode: SCNNode = SCNNode.init()
-    
-    
-    var virtualPetNodes: [SCNNode] = []
-    var virtualPetAnchors: [ARAnchor] = []
-    // END OF ERIN EDIT
-    
     var tileGrid: TileGrid?
     var gameBoard: GameBoard?
     

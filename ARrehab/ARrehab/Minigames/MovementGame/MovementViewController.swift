@@ -10,18 +10,24 @@ import Foundation
 import UIKit
 import Combine
 import MultiProgressView
+import RealityKit
+import ARKit
 
 /**
  Movement Minigame ViewController.
  */
 class MovementGameViewController : MinigameViewController {
     
-    /// Coaching Image
+    /// Flat Coaching Image
     @IBOutlet var coachImageView: UIImageView!
+//    // ARview
+//    let
+//    @IBOutlet var arView : ARview!
     /// Progress subscribers
     var subscribers: [Cancellable] = []
-    
-    
+//    let anchor = AnchorEntity(plane: .horizontal, minimumBounds: [.2, .2])
+//    arView.addAnchor(anchor)
+//
 
     private let backgroundView: UIView = {
         let view = PassThroughView()
@@ -61,26 +67,26 @@ class MovementGameViewController : MinigameViewController {
                               width: progressViewWidth
                             )
         backgroundView.transform = CGAffineTransform(rotationAngle: CGFloat.pi/2)
-        setupProgressBar()
+        //setupProgressBar()
 //        setupStackView()
         addMinigameSubscriber()
         print("Complete viewDidLoad")
     }
     
-    private func setupProgressBar() {
-        backgroundView.addSubview(progressView)
-        progressView.anchor(top: backgroundView.topAnchor,
-                            left: backgroundView.leftAnchor,
-                            //right: backgroundView.rightAnchor,
-                            paddingTop: padding,
-                            paddingLeft: padding,
-                            paddingRight: padding,
-                            width: progressViewWidth,
-                            height: progressViewHeight)
-        progressView.dataSource = self
-        progressView.delegate = self
-        //backgroundView.translatesAutoresizingMaskIntoConstraints = true
-    }
+//    private func setupProgressBar() {
+//        backgroundView.addSubview(progressView)
+//        progressView.anchor(top: backgroundView.topAnchor,
+//                            left: backgroundView.leftAnchor,
+//                            //right: backgroundView.rightAnchor,
+//                            paddingTop: padding,
+//                            paddingLeft: padding,
+//                            paddingRight: padding,
+//                            width: progressViewWidth,
+//                            height: progressViewHeight)
+//        progressView.dataSource = self
+//        progressView.delegate = self
+//        //backgroundView.translatesAutoresizingMaskIntoConstraints = true
+//    }
 //
 //    private func setupStackView() {
 //        backgroundView.addSubview(stackView)
@@ -102,24 +108,24 @@ class MovementGameViewController : MinigameViewController {
 //        stackView.addArrangedSubview(UIView())
 //    }
 //
-    private func animateProgress(progress: [Float]) {
-        UIView.animate(withDuration: 0.4,
-                       delay: 0,
-                       usingSpringWithDamping: 0.6,
-                       initialSpringVelocity: 0,
-                       options: .curveLinear,
-                       animations: {
-                        self.progressView.setProgress(section: 0, to: progress[1])
-        })
-//        dataUsedLabel.text = "56.5 GB of 64 GB Used"
-    }
+//    private func animateProgress(progress: [Float]) {
+//        UIView.animate(withDuration: 0.4,
+//                       delay: 0,
+//                       usingSpringWithDamping: 0.6,
+//                       initialSpringVelocity: 0,
+//                       options: .curveLinear,
+//                       animations: {
+//                        self.progressView.setProgress(section: 0, to: progress[1])
+//        })
+////        dataUsedLabel.text = "56.5 GB of 64 GB Used"
+//    }
 
-    private func resetProgress() {
-        UIView.animate(withDuration: 0.1) {
-            self.progressView.resetProgress()
-        }
-//        dataUsedLabel.text = "0 GB of 64 GB Used"
-    }
+//    private func resetProgress() {
+//        UIView.animate(withDuration: 0.1) {
+//            self.progressView.resetProgress()
+//        }
+////        dataUsedLabel.text = "0 GB of 64 GB Used"
+//    }
 
     override func attachMinigame(minigame: Minigame) {
         super.attachMinigame(minigame: minigame)
@@ -136,9 +142,9 @@ class MovementGameViewController : MinigameViewController {
             return
         }
 
-        subscribers.append(minigame!.$progress.sink(receiveValue: { (progress) in
-            self.animateProgress(progress: progress)
-        }))
+//        subscribers.append(minigame!.$progress.sink(receiveValue: { (progress) in
+//            self.animateProgress(progress: progress)
+//        }))
         subscribers.append(minigame().$coachingState.sink(receiveValue: { (state) in
             // TODO
             self.coachImageView.image = state.image
@@ -155,24 +161,26 @@ extension MovementGameViewController {
 
 // MARK: - MultiProgressViewDataSource
 
-extension MovementGameViewController: MultiProgressViewDataSource {
-    public func numberOfSections(in progressBar: MultiProgressView) -> Int {
-        return 1
-    }
+//extension MovementGameViewController: MultiProgressViewDataSource {
+//    public func numberOfSections(in progressBar: MultiProgressView) -> Int {
+//        return 1
+//    }
+//
+//    public func progressView(_ progressView: MultiProgressView, viewForSection section: Int) -> ProgressViewSection {
+//        let bar = ProgressViewSection()
+//        // FIXME
+//        bar.backgroundColor = .blue
+//        return bar
+//    }
+//}
+//
+//// MARK: - MultiProgressViewDelegate
+//
+//extension MovementGameViewController: MultiProgressViewDelegate {
+//
+//    func progressView(_ progressView: MultiProgressView, didTapSectionAt index: Int) {
+//        print("Tapped section \(index)")
+//    }
+//}
 
-    public func progressView(_ progressView: MultiProgressView, viewForSection section: Int) -> ProgressViewSection {
-        let bar = ProgressViewSection()
-        // FIXME
-        bar.backgroundColor = .blue
-        return bar
-    }
-}
 
-// MARK: - MultiProgressViewDelegate
-
-extension MovementGameViewController: MultiProgressViewDelegate {
-
-    func progressView(_ progressView: MultiProgressView, didTapSectionAt index: Int) {
-        print("Tapped section \(index)")
-    }
-}

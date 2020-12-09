@@ -52,11 +52,11 @@
 		8CE1B72525215636000E0FDE /* TraceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE1B72425215636000E0FDE /* TraceViewController.swift */; };
 		EA653569257DA86100941670 /* Minigame.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA653568257DA86100941670 /* Minigame.swift */; };
 		EA935A8F257F459D0060461A /* colorful.usdz in Resources */ = {isa = PBXBuildFile; fileRef = EA935A8E257F459D0060461A /* colorful.usdz */; };
-		EA935A95257F47B30060461A /* MovementTargetType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA935A94257F47B30060461A /* MovementTargetType.swift */; };
 		EAC7421D257F4DC6002A546F /* blueMarble.usdz in Resources */ = {isa = PBXBuildFile; fileRef = EAC74219257F4DC5002A546F /* blueMarble.usdz */; };
 		EAC7421E257F4DC6002A546F /* yellowMarble.usdz in Resources */ = {isa = PBXBuildFile; fileRef = EAC7421A257F4DC6002A546F /* yellowMarble.usdz */; };
 		EAC7421F257F4DC6002A546F /* orangeMarble.usdz in Resources */ = {isa = PBXBuildFile; fileRef = EAC7421B257F4DC6002A546F /* orangeMarble.usdz */; };
 		EAC74220257F4DC6002A546F /* tealMarble.usdz in Resources */ = {isa = PBXBuildFile; fileRef = EAC7421C257F4DC6002A546F /* tealMarble.usdz */; };
+		EAC7422525805923002A546F /* CollectTargetType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC7422425805922002A546F /* CollectTargetType.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,11 +128,11 @@
 		8CE1B72425215636000E0FDE /* TraceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TraceViewController.swift; path = ARrehab/Minigames/TrialGame/TraceViewController.swift; sourceTree = SOURCE_ROOT; };
 		EA653568257DA86100941670 /* Minigame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Minigame.swift; sourceTree = "<group>"; };
 		EA935A8E257F459D0060461A /* colorful.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = colorful.usdz; sourceTree = "<group>"; };
-		EA935A94257F47B30060461A /* MovementTargetType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovementTargetType.swift; sourceTree = "<group>"; };
 		EAC74219257F4DC5002A546F /* blueMarble.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = blueMarble.usdz; sourceTree = "<group>"; };
 		EAC7421A257F4DC6002A546F /* yellowMarble.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = yellowMarble.usdz; sourceTree = "<group>"; };
 		EAC7421B257F4DC6002A546F /* orangeMarble.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = orangeMarble.usdz; sourceTree = "<group>"; };
 		EAC7421C257F4DC6002A546F /* tealMarble.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = tealMarble.usdz; sourceTree = "<group>"; };
+		EAC7422425805922002A546F /* CollectTargetType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectTargetType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -260,6 +260,7 @@
 		15AC2BAF2479C5DE00D5DFB6 /* MovementGame */ = {
 			isa = PBXGroup;
 			children = (
+				EAC7422425805922002A546F /* CollectTargetType.swift */,
 				EAC74219257F4DC5002A546F /* blueMarble.usdz */,
 				EAC7421B257F4DC6002A546F /* orangeMarble.usdz */,
 				EAC7421C257F4DC6002A546F /* tealMarble.usdz */,
@@ -271,7 +272,6 @@
 				15BB4C8D245FA4D50033A18D /* down.png */,
 				15BB4C8C245FA4D50033A18D /* up.png */,
 				EA935A8E257F459D0060461A /* colorful.usdz */,
-				EA935A94257F47B30060461A /* MovementTargetType.swift */,
 			);
 			path = MovementGame;
 			sourceTree = "<group>";
@@ -447,7 +447,6 @@
 			files = (
 				15BB4C85245F534D0033A18D /* TraceStackView.swift in Sources */,
 				159A41EF23F49283000A5376 /* ViewController.swift in Sources */,
-				EA935A95257F47B30060461A /* MovementTargetType.swift in Sources */,
 				19989C3D244AA617001C1C7F /* PlaceBoardButton.swift in Sources */,
 				159A41ED23F49283000A5376 /* AppDelegate.swift in Sources */,
 				19DEDE7B243EB2B20090CA15 /* ViewManipulation.swift in Sources */,
@@ -462,6 +461,7 @@
 				15986816241EE627009456EF /* TraceGame.swift in Sources */,
 				19B1736A2403475400845819 /* Tile.swift in Sources */,
 				8CE1B72525215636000E0FDE /* TraceViewController.swift in Sources */,
+				EAC7422525805923002A546F /* CollectTargetType.swift in Sources */,
 				15CE526524608E7300A22B0B /* MovementState.swift in Sources */,
 				159994D92481CA8500BC40AA /* Background.rcproject in Sources */,
 				15BB4C8B245FA3420033A18D /* MovementViewController.swift in Sources */,

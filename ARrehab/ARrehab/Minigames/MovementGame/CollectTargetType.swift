@@ -1,5 +1,5 @@
 //
-//  MovementTargetType.swift
+//  CollectTargetType.swift
 //  ARrehab
 //
 //  Created by Erin Kraemer on 12/7/20.
@@ -10,15 +10,15 @@ import Foundation
 import UIKit
 
 /**
- Set of MovementTarget types.
+ Set of CollectTarget types. These are the objects that you can pick up during the movement game.
  */
-enum MovementTargetType {
+enum CollectTargetType {
     case colorful, tealMarble, blueMarble, yellowMarble, orangeMarble
     
     /**
      A list of all the possible target types.
      */
-    static var allTypes: [MovementTargetType] = [.colorful, .tealMarble, .blueMarble, .yellowMarble, .orangeMarble]
+    static var allTypes: [CollectTargetType] = [.colorful, .tealMarble, .blueMarble, .yellowMarble, .orangeMarble]
     
     /**
      The names of each type.
@@ -41,7 +41,7 @@ enum MovementTargetType {
     /**
      The name of each target's model.
      
-     Use `Entity.loadModel(named: traceTargetType.modelName)` to get a Model Entity of the target.
+     Use `Entity.loadModel(named: CollectTargetType.modelName)` to get a Model Entity of the target.
      */
     var modelName: String {
         return self.description
@@ -73,16 +73,16 @@ enum MovementTargetType {
     var minPosition: SIMD3<Float> {
         switch self {
         case .colorful:
-            return SIMD3<Float>(-3, 0.03, 0)
+            return SIMD3<Float>(-3, -1, 0)
         case .tealMarble:
-            return SIMD3<Float>(0, 0.03, 1)
+            return SIMD3<Float>(0, -1, 1)
 
         case .blueMarble:
-            return SIMD3<Float>(-3, 0.03, 1)
+            return SIMD3<Float>(-3, -1, 1)
         case .yellowMarble:
-            return SIMD3<Float>(-5, 0.03, 1)
+            return SIMD3<Float>(-5, -1, 1)
         case .orangeMarble:
-            return SIMD3<Float>(-3, 0.03, 1)
+            return SIMD3<Float>(-3, -1, 1)
         }
     }
 
@@ -92,15 +92,15 @@ enum MovementTargetType {
     var maxPosition: SIMD3<Float> {
         switch self {
         case .colorful:
-            return SIMD3<Float>(0, 0.03, 3)
+            return SIMD3<Float>(0, -1, 3)
         case .tealMarble:
-            return SIMD3<Float>(3, 0.03, 4)
+            return SIMD3<Float>(3, -1, 4)
         case .blueMarble:
-            return SIMD3<Float>(3, 0.03, 5)
+            return SIMD3<Float>(3, -1, 5)
         case .yellowMarble:
-            return SIMD3<Float>(3, 0.03, 3)
+            return SIMD3<Float>(3, -1, 3)
         case .orangeMarble:
-            return SIMD3<Float>(3, 0.03, 3)
+            return SIMD3<Float>(3, -1, 3)
         }
     }
 }

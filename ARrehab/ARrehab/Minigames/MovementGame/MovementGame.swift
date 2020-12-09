@@ -12,23 +12,15 @@ import UIKit
 import Dispatch
 
 /**
-Movement Game Entity holds a representatioin of where the user needs to go and the detection mechanism to determine if the user has completed the action.
+Movement Game Entity holds a representatioin of where the user needs to go (standing or sqatting position) and the detection mechanism to determine if the user has completed the action.
  */
 class MovementGame : Minigame {
-   //list of TracePoints that make up this target.
-   var pointCloud : [MovePoint] = []
-   /// Collision group for the TracePoints
-   var pointCollisionGroup : CollisionGroup
-   /// Collision group for the laser.
-//   var laserCollisionGroup : CollisionGroup
-//   // The laser that interacts with the TracePoints.
-//   var laser : Laser
-   /// Total number of points in the pointCloud
-   var total : Int
-   /// Total number of points still active
-   var active : Int
+    
+    /// list of TracePoints that make up this target.
+    var collectPointCloud : [CollectPoint] = []
+    
     /// Collision group for the MovementTarget
-    var targetCollisionGroup : CollisionGroup
+    var movementTargetCollisionGroup : CollisionGroup
     /// Collision subscriptions
     var subscriptions: [Cancellable] = []
     /// The player. As long as it collides with the target it counts.
@@ -46,72 +38,31 @@ class MovementGame : Minigame {
         }
     }
     /// Number of movements to complete
-    //var total : Int
+    var total : Int
+    
+    //List of collection targets to try and pick up
+    var collectTargets : [CollectTargetType] = [.colorful, .tealMarble, .blueMarble, .yellowMarble, .orangeMarble]
     /// Coaching state
     @Published
     var coachingState : MovementState
     
     var timer: Timer? = nil
     
-    var targets : [MovementTargetType] = [.colorful, .blueMarble, .tealMarble, .yellowMarble, .orangeMarble]
-    
     convenience required init() {
         self.init(num: 1)
     }
     
-    
-    
-    // Creates the objects to be picked up
-    func generateTargets(ground: Entity, player: Entity) {
-        var models : [MovementTargetType : ModelComponent] = [:]
-        
-//        targets.forEach { (targetType) in
-//            do {
-//                models.updateValue((try Entity.loadModel(named: targetType.modelName).model!), forKey: targetType)
-//            } catch {
-//                models.updateValue((ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .purple, isMetallic: false)])), forKey: MovementTargetType.tealMarble)
-//            }
-//        }
-
-        for _ in 1 ... total {
-            let (targetType, model) = models.randomElement()!
-            let posMin = targetType.minPosition
-            let posMax = targetType.maxPosition
-            // TODO may be unecessary considering we anchor objects with point.look instead
-            let point : MovePoint = MovePoint(model: model, translation: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), -3, Float.random(in:posMin[2] ... posMax[2])), targetType: targetType) //let everything else be random, but set y so that it is on the ground
-            //point.collision?.filter = CollisionFilter(group: self.pointCollisionGroup, mask: self.laserCollisionGroup)
-            //pointCloud.append(point)
-            self.addChild(point)
-            ground.addChild(point)
-            
-            var playerPosition = player.position(relativeTo: ground)
-            // Our object position
-            // Currently its set to be 1m in front of the camera
-            var targetPosition = player.convert(position: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), Float.random(in: posMin[0] ... posMax[0]), Float.random(in:posMin[2] ... posMax[2])), to: ground)
-            // Get the position transform from the player to the target
-            targetPosition = targetPosition - playerPosition
-            // Extract the x and z values of the transform (Find the projection to the ground plane)
-            targetPosition.y = 0
-            playerPosition.y = 0
-            // Get a unit vector of our target projection then add it to our player position
-            targetPosition = simd_normalize(targetPosition) + playerPosition
-            // This should result in a position denoted by a 1m vector extending out from the player in the XZ direction the player is facing. This position is fixed at a height of 0 m.
-            // Set the target at the desired position and orient it towards the player.
-            point.look(at: playerPosition, from: targetPosition, relativeTo: ground)
-        }
-    }
-    
     required init(num: Int) {
-        self.pointCollisionGroup = CollisionGroup(rawValue: UInt32.random(in: UInt32.min...UInt32.max)) //TODO: Find some way to not rely on generating a random integer
         //TODO: Find some way to not rely on generating a random integer
-        self.targetCollisionGroup = CollisionGroup(rawValue: UInt32.random(in: UInt32.min...UInt32.max))
+        self.movementTargetCollisionGroup = CollisionGroup(rawValue: UInt32.random(in: UInt32.min...UInt32.max))
         self.total = num
         // For our purposes, we placed the player as a 2 centimeter sphere around the camera.
         // TODO see if we even need to create this entity given that our player is already such an entity?
-        self.playerCollisionEntity = TriggerVolume(shape: ShapeResource.generateSphere(radius: 0.01), filter: CollisionFilter(group:Player.PLAYER_COLLISION_GROUP, mask: targetCollisionGroup))
+        self.playerCollisionEntity = TriggerVolume(shape: ShapeResource.generateSphere(radius: 0.01), filter: CollisionFilter(group:Player.PLAYER_COLLISION_GROUP, mask: movementTargetCollisionGroup))
         self.coachingState = .up
-        self.active = self.total
         super.init()
+        /// Make marbles!
+        generateCollectTargets()
         self.progress = [0, 0]
         self.timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
             self.progress[1] = (-self.playerCollisionEntity.convert(position: SIMD3<Float>(0,0,0), to: self).y)/0.4
@@ -138,7 +89,7 @@ class MovementGame : Minigame {
 
         // Create a target with a trigger time of 1 second
         let target = MovementTarget(delay: 1, reps: num, arrow: true)
-        target.collision?.filter = CollisionFilter(group: self.targetCollisionGroup, mask: Player.PLAYER_COLLISION_GROUP)
+        target.collision?.filter = CollisionFilter(group: self.movementTargetCollisionGroup, mask: Player.PLAYER_COLLISION_GROUP)
         // Change the orientation to squating rather than to the left (the default target orientation).
         // This is done by rotating by 90 degrees counter clockwise about the z axis.
         target.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0,0,1))
@@ -148,7 +99,7 @@ class MovementGame : Minigame {
 
         // Create a target with a trigger time of 1 second
         let hardTarget = MovementTarget(delay: 1, reps: num, arrow: false)
-        hardTarget.collision?.filter = CollisionFilter(group: self.targetCollisionGroup, mask: Player.PLAYER_COLLISION_GROUP)
+        hardTarget.collision?.filter = CollisionFilter(group: self.movementTargetCollisionGroup, mask: Player.PLAYER_COLLISION_GROUP)
         // Change the orientation to squating rather than to the left
         hardTarget.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0,0,1))
         // Move the squat target down by 0.4 m.
@@ -171,9 +122,6 @@ class MovementGame : Minigame {
         print(self.transform.translation)
         
         player.addChild(self.getPlayerCollisionEntity())
-        
-        // Add the objects to pick up
-        generateTargets(ground: ground, player: player)
     }
     
     override func run() -> Bool {
@@ -241,6 +189,30 @@ class MovementGame : Minigame {
         })
         
         print(self.subscriptions)
+    }
+    
+    func generateCollectTargets() {
+        var models : [CollectTargetType : ModelComponent] = [:]
+        
+        collectTargets.forEach { (collectTargetType) in
+            do {
+                models.updateValue((try Entity.loadModel(named: collectTargetType.modelName).model!), forKey: collectTargetType)
+            } catch {
+                models.updateValue((ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .purple, isMetallic: false)])), forKey: CollectTargetType.blueMarble)
+            }
+        }
+
+        for _ in 1 ... total {
+            let (targetType, model) = models.randomElement()!
+            let posMin = targetType.minPosition
+            let posMax = targetType.maxPosition
+            let point : CollectPoint = CollectPoint(model: model, translation: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), Float.random(in: posMin[1] ... posMax[1]), Float.random(in:posMin[2] ... posMax[2])), targetType: targetType)
+//            point.collision?.filter = CollisionFilter(group: self.pointCollisionGroup, mask: self.laserCollisionGroup)
+            
+           
+           collectPointCloud.append(point)
+           self.addChild(point)
+        }
     }
 }
 
@@ -360,55 +332,52 @@ class MovementTarget : Entity, HasModel, HasCollision {
     }
 }
 
-//movepoint
-/*TracePoint Entity is an individual point the laser interacts with.
-  By default, it changes color upon contact to red and to clear after contact ends.
-*/
-class MovePoint : Entity, HasModel, HasCollision {
-   var active = true
-   var targetType : MovementTargetType
-   
-   required convenience init() {
-       self.init(model: ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .cyan, isMetallic: false)]))
-   }
-   
-   init(model : ModelComponent) {
-       self.targetType = .tealMarble
-       super.init()
-       let radius : Float = 0.5
-       self.components[CollisionComponent] = CollisionComponent(shapes: [ShapeResource.generateSphere(radius: model.mesh.bounds.boundingRadius / sqrtf(5)).offsetBy(translation: model.mesh.bounds.center)], mode: .trigger, filter: .default)
-       self.components[ModelComponent] = model
-       let scaleFactor = radius/model.mesh.bounds.boundingRadius
-       self.transform.scale = SIMD3<Float>(scaleFactor, scaleFactor, scaleFactor)
-       self.transform.rotation = simd_quatf(angle: Float.random(in: 5.0 * .pi/6 ... 7.0 * .pi/6), axis: SIMD3<Float>(0,1,0))
-   }
-   
-   required convenience init(translation: SIMD3<Float>) {
-       self.init()
-       self.transform.translation = translation
-   }
-   
-   convenience init(model : ModelComponent, translation: SIMD3<Float>, targetType: MovementTargetType) {
-       self.init(model: model)
-       self.targetType = targetType
-       self.transform.translation = translation
-   }
-   
-   func onCollisionBegan() {
-       if (active) {
-           self.model?.materials = [SimpleMaterial(color: self.targetType.color, isMetallic: false)]
-       }
-   }
-   
-   func onCollisionEnded() {
-       self.model?.materials = [
-           SimpleMaterial(color: .clear, isMetallic: false)
-       ]
-       if (active) {
-           active = false
-           (self.parent as! TraceGame).score()
-       }
-   }
+/**
+ CollectPoint Entity is all the objects that the pet has to collect.
+ */
+class CollectPoint : Entity, HasModel, HasCollision {
+    var active = true
+    var targetType : CollectTargetType
+    
+    required convenience init() {
+        self.init(model: ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .cyan, isMetallic: false)]))
+    }
+    
+    init(model : ModelComponent) {
+        self.targetType = .blueMarble
+        super.init()
+        let radius : Float = 0.5
+        self.components[CollisionComponent] = CollisionComponent(shapes: [ShapeResource.generateSphere(radius: model.mesh.bounds.boundingRadius / sqrtf(5)).offsetBy(translation: model.mesh.bounds.center)], mode: .trigger, filter: .default)
+        self.components[ModelComponent] = model
+        let scaleFactor = radius/model.mesh.bounds.boundingRadius
+        self.transform.scale = SIMD3<Float>(scaleFactor, scaleFactor, scaleFactor)
+        self.transform.rotation = simd_quatf(angle: Float.random(in: 5.0 * .pi/6 ... 7.0 * .pi/6), axis: SIMD3<Float>(0,1,0))
+    }
+    
+    required convenience init(translation: SIMD3<Float>) {
+        self.init()
+        self.transform.translation = translation
+    }
+    
+    convenience init(model : ModelComponent, translation: SIMD3<Float>, targetType: CollectTargetType) {
+        self.init(model: model)
+        self.targetType = targetType
+        self.transform.translation = translation
+    }
+//
+//    func onCollisionBegan() {
+//        if (active) {
+//            self.model?.materials = [SimpleMaterial(color: self.targetType.color, isMetallic: false)]
+//        }
+//    }
+//
+//    func onCollisionEnded() {
+//        self.model?.materials = [
+//            SimpleMaterial(color: .clear, isMetallic: false)
+//        ]
+//        if (active) {
+//            active = false
+//            (self.parent as! TraceGame).score()
+//        }
+//    }
 }
-
-
