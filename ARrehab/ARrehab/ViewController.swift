@@ -11,6 +11,9 @@ import RealityKit
 import ARKit
 import Combine
 
+var Floor: Entity?
+//var subARview: ARView!
+
 class ViewController: UIViewController {
     
     /// AR View
@@ -25,7 +28,7 @@ class ViewController: UIViewController {
     var tileGrid: TileGrid?
     var gameBoard: GameBoard?
     
-    var floor: Entity?
+    var name : ViewController?
     
     /// The Player Entity that is attached to the camera.
     let playerEntity = Player(target: .camera)
@@ -42,10 +45,13 @@ class ViewController: UIViewController {
     var minigameController: MinigameController!
     var subscribers: [Cancellable] = []
     
+    
     /// Add the player entity and set the AR session to begin detecting the floor.
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        name = self
         
         //Assign the ViewController class to act as the session's delegate (extension below)
         arView.session.delegate = self
@@ -201,12 +207,12 @@ extension ViewController: ARSessionDelegate {
         }))
         
         //Set up the floor entity, which will allow collision detection with the surface anchor during minigames
-        self.floor = Entity()
+        Floor = Entity()
         let floorCollisionComp = CollisionComponent(shapes: [ShapeResource.generateBox(width: tileGrid!.surfaceAnchor.extent.x, height: 0.00, depth: tileGrid!.surfaceAnchor.extent.z)])
         let floorPhysicsComp = PhysicsBodyComponent(shapes: floorCollisionComp.shapes, density: 0.1, material: .default, mode: .static)
-        self.floor!.components.set([floorCollisionComp, floorPhysicsComp])
+        Floor!.components.set([floorCollisionComp, floorPhysicsComp])
         
-        minigameController.ground.addChild(floor!)
+        minigameController.ground.addChild(Floor!)
         
         
         //Setup the Minigame. Switch is used for debugging purposes. In the product it should be a seamless transition.
@@ -215,6 +221,8 @@ extension ViewController: ARSessionDelegate {
         minigameSwitch.setOn(false, animated: false)
         minigameSwitch.addTarget(self, action: #selector(minigameSwitchStateChanged), for: .valueChanged)
         addCollision()
+        
+        //subARview = arView
     }
         
     ///Here is code to load in the background model. Currently not recommended -- causes iPad to heat significantly and doesn't blend with scene well
@@ -336,6 +344,7 @@ extension ViewController {
         
         
         let controller = self.minigameController.enableMinigame(game: gameType)
+        controller.arView = self.arView;
         print("Adding Controller")
         self.addViewController(controller: controller)
         print("Turning minigame switch on")
@@ -344,3 +353,66 @@ extension ViewController {
     }
     
 }
+
+//extension ARView{
+//
+//    func setupGestures() {
+//        let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+//        self.addGestureRecognizer(tap)
+//    }
+//
+//    @objc func handleTap(_ sender: UITapGestureRecognizer? = nil) {
+//
+//        guard let touchInView = sender?.location(in: self) else {
+//            return
+//        }
+//
+//        rayCastingMethod(point: touchInView)
+//
+//        //to find whether an entity exists at the point of contact
+//        let entities = self.entities(at: touchInView)
+//    }
+//
+//    func rayCastingMethod(point: CGPoint) {
+////        guard let coordinator = self.session.delegate as? ARViewCoordinator else{ print("GOOD NIGHT"); return }
+//
+//        guard let raycastQuery = self.makeRaycastQuery(from: point,
+//                                                       allowing: .existingPlaneInfinite,
+//                                                       alignment: .horizontal) else {
+//
+//                                                        print("failed first")
+//                                                        return
+//        }
+//
+//        guard let result = self.session.raycast(raycastQuery).first else {
+//            print("failed")
+//            return
+//        }
+//
+//        let transformation = Transform(matrix: result.worldTransform)
+//        let box = CustomBox(color: .yellow)
+//        self.installGestures(.all, for: box)
+//        box.generateCollisionShapes(recursive: true)
+//
+//        let mesh = MeshResource.generateText(
+//            "\(coordinator.overlayText)",
+//            extrusionDepth: 0.1,
+//            font: .systemFont(ofSize: 2),
+//            containerFrame: .zero,
+//            alignment: .left,
+//            lineBreakMode: .byTruncatingTail)
+//
+//        let material = SimpleMaterial(color: .red, isMetallic: false)
+//        let entity = ModelEntity(mesh: mesh, materials: [material])
+//        entity.scale = SIMD3<Float>(0.03, 0.03, 0.1)
+//
+//        box.addChild(entity)
+//        box.transform = transformation
+//
+//        entity.setPosition(SIMD3<Float>(0, 0.05, 0), relativeTo: box)
+//
+//        let raycastAnchor = AnchorEntity(raycastResult: result)
+//        raycastAnchor.addChild(box)
+//        self.scene.addAnchor(raycastAnchor)
+//    }
+//}

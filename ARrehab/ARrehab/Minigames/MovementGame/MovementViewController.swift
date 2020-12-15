@@ -20,11 +20,125 @@ class MovementGameViewController : MinigameViewController {
     
     /// Flat Coaching Image
     @IBOutlet var coachImageView: UIImageView!
+    
+    /// list of TracePoints that make up this target.
+    var collectPointCloud : [CollectPoint] = []
+    
+    //List of collection targets to try and pick up
+    var collectTargets : [CollectTargetType] = [.colorful, .tealMarble, .blueMarble, .yellowMarble, .orangeMarble]
+    /// Coaching state
+    
+    var hitEntity : CollectPoint!
+    var targetCheck : CollectTargetType!
+    
+    //override var arView: ARView!
+//    func loadInInstance(ViewController: ViewController) {
+//        self.arView = ViewController.arView
+//    }
+    //var subarview : subARview!
+    
+//    // Add a gesture recognizer
+//    let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+//    self.addGestureRecognizer(tapGestureRecognizer)
+//    tapGestureRecognizer.cancelsTouchesInView = false
+    
+//
+    func generateCollectTargets() {
+        var models : [CollectTargetType : ModelComponent] = [:]
+        
+        collectTargets.forEach { (collectTargetType) in
+            do {
+                models.updateValue((try Entity.loadModel(named: collectTargetType.modelName).model!), forKey: collectTargetType)
+            } catch {
+                models.updateValue((ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .purple, isMetallic: false)])), forKey: CollectTargetType.blueMarble)
+            }
+        }
+//        One of the simplest way is to add the vase as a table's child node since you don't need to update vase position whenever the table moves:
+//        tableNode.addChildNode(vaseNode)
+//        Set position of the vase to the middle of the table face. You have to calculate y or set it manually:
+//        vaseNode.position = SCNVector3(0, y, 0)
+//        The following code is to calculate y:
+//        let tableHeight = tableNode.boundingBox.max.y - tableNode.boundingBox.min.y
+//        let vaseHeight = vaseNode.boundingBox.max.y - vaseNode.boundingBox.min.y
+//        Now you can set the vase as it is on the table face:
+//        vaseNode.position = SCNVector3(0, (tableHeight + vaseHeight) / 2, 0)
+        //let Floorwidth = Floor.boundingBox
+        //var posx = Floor?.position(relativeTo: <#T##Entity?#>)
+        for _ in 1 ... 5 {
+            let (targetType, model) = models.randomElement()!
+            let posMin = targetType.minPosition
+            let posMax = targetType.maxPosition
+            let point : CollectPoint = CollectPoint(model: model, translation: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), Float.random(in: posMin[1] ... posMax[1]), Float.random(in:posMin[2] ... posMax[2])), targetType: targetType)
+            //point.position(relativeTo: Floor)
+            //setPosition(point position: SIMD3<Float>, relativeTo referenceEntity: Entity?)
+            point.setPosition((SIMD3<Float>(Float.random(in: -1 ... 1), 0, Float.random(in: -1 ... 1))) , relativeTo: Floor)
+//            point.collision?.filter = CollisionFilter(group: self.pointCollisionGroup, mask: self.laserCollisionGroup)
+            point.scale = SIMD3<Float>(3.0, 3.0, 3.0)
+            print(point.position)
+            collectPointCloud.append(point)
+            // Make it interactable
+            self.arView.installGestures(for: point)
+            // Place anchor and marble in scene
+            self.arView.scene.addAnchor(point)
+        }
+    }
+    
+//    @objc func handleTap(_ sender: UITapGestureRecognizer? = nil) {
+//        print("Tapped!!")
+//        guard let touchInView = sender?.location(in: self.arView) else { return
+//        }
+//        print("pre hit entity")
+//        print(self.arView.entity(at: touchInView))
+//        guard let hitEntity = self.arView.entity(at: touchInView) else { return }
+//        print(hitEntity.position)
+//
+//    }
+    
+    @objc func handleTap(sender:UITapGestureRecognizer) {
+        let tappedView = sender.view as! ARView
+        //print(sender.view)
+        let touchLocation = sender.location(in: tappedView)
+        let hitTestResult = tappedView.hitTest(touchLocation)
+        print("----------------------------------------------------------------------")
+        print("RESULTSSSSS")
+        //print(hitTestResult)
+
+        if !hitTestResult.isEmpty {
+            // add something to scene
+            // e.g self.sceneView.scene.rootNode.addChildNode(yourNode!)
+            print("----------------------------------------------------------------------")
+            for item in hitTestResult{
+                if item.entity is CollectPoint {
+//                    print ("BOOYAH")
+                    //make marble glow
+                    //move dragon there
+                    //show coaching image
+                    // After user squats, show dragon sqatting
+                    // Make marble disappear (with a flourish)
+                    // Check number of marbles left
+                    //  if 0, show game over!
+                }
+//                let hitEntity = item.entity is CollectTargetType // entity
+//                guard let _ = _ else {}
+//                //let targetCheck = hitEntity.targetType
+//                print(hitEntity)
+                else {
+//                    print("")
+                    //move dragon there
+                }
+            }
+//            let result = hitTestResult.first!
+//            let name = result.entity.name
+//            let geometry = result.entity.position
+            //print("Tapped \(String(describing: name)) with geometry \(String(describing: geometry))")
+        }
+    }
+
 //    // ARview
 //    let
 //    @IBOutlet var arView : ARview!
     /// Progress subscribers
-    var subscribers: [Cancellable] = []
+    var subscriberss: [Cancellable] = []
 //    let anchor = AnchorEntity(plane: .horizontal, minimumBounds: [.2, .2])
 //    arView.addAnchor(anchor)
 //
@@ -54,9 +168,9 @@ class MovementGameViewController : MinigameViewController {
     private let progressViewWidth: CGFloat = 500
 
     override func viewDidLoad() {
-        print("Loading SuperView")
-        super.viewDidLoad()
-        print("Super View did load. Adding custom elements")
+        //print("Loading SuperView")
+        //super.viewDidLoad()
+        //print("Super View did load. Adding custom elements")
         view.addSubview(backgroundView)
         backgroundView.anchor(top: view.safeAreaLayoutGuide.topAnchor,
                                 left: view.safeAreaLayoutGuide.leftAnchor,
@@ -70,7 +184,13 @@ class MovementGameViewController : MinigameViewController {
         //setupProgressBar()
 //        setupStackView()
         addMinigameSubscriber()
+        //print(POTATO)
         print("Complete viewDidLoad")
+        generateCollectTargets()
+        //arView.environment.lighting(
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        arView?.addGestureRecognizer(tapGestureRecognizer)
     }
     
 //    private func setupProgressBar() {
@@ -145,7 +265,7 @@ class MovementGameViewController : MinigameViewController {
 //        subscribers.append(minigame!.$progress.sink(receiveValue: { (progress) in
 //            self.animateProgress(progress: progress)
 //        }))
-        subscribers.append(minigame().$coachingState.sink(receiveValue: { (state) in
+        subscriberss.append(minigame().$coachingState.sink(receiveValue: { (state) in
             // TODO
             self.coachImageView.image = state.image
         }))

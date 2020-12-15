@@ -50,6 +50,7 @@
 		8CB79C012579CDC20095B0D2 /* Berries.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 8CB79BFE2579CDC20095B0D2 /* Berries.usdz */; };
 		8CB79C022579CDC20095B0D2 /* Potion.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 8CB79BFF2579CDC20095B0D2 /* Potion.usdz */; };
 		8CE1B72525215636000E0FDE /* TraceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE1B72425215636000E0FDE /* TraceViewController.swift */; };
+		EA611DC8258757D400D2F1C2 /* ViewController+Gestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA611DC7258757D200D2F1C2 /* ViewController+Gestures.swift */; };
 		EA653569257DA86100941670 /* Minigame.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA653568257DA86100941670 /* Minigame.swift */; };
 		EA935A8F257F459D0060461A /* colorful.usdz in Resources */ = {isa = PBXBuildFile; fileRef = EA935A8E257F459D0060461A /* colorful.usdz */; };
 		EAC7421D257F4DC6002A546F /* blueMarble.usdz in Resources */ = {isa = PBXBuildFile; fileRef = EAC74219257F4DC5002A546F /* blueMarble.usdz */; };
@@ -126,6 +127,7 @@
 		8CB79BFE2579CDC20095B0D2 /* Berries.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Berries.usdz; sourceTree = "<group>"; };
 		8CB79BFF2579CDC20095B0D2 /* Potion.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Potion.usdz; sourceTree = "<group>"; };
 		8CE1B72425215636000E0FDE /* TraceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TraceViewController.swift; path = ARrehab/Minigames/TrialGame/TraceViewController.swift; sourceTree = SOURCE_ROOT; };
+		EA611DC7258757D200D2F1C2 /* ViewController+Gestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Gestures.swift"; sourceTree = "<group>"; };
 		EA653568257DA86100941670 /* Minigame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Minigame.swift; sourceTree = "<group>"; };
 		EA935A8E257F459D0060461A /* colorful.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = colorful.usdz; sourceTree = "<group>"; };
 		EAC74219257F4DC5002A546F /* blueMarble.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = blueMarble.usdz; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 				159A41F523F49286000A5376 /* Assets.xcassets */,
 				159A41F723F49286000A5376 /* LaunchScreen.storyboard */,
 				159A41FA23F49286000A5376 /* Info.plist */,
+				EA611DC7258757D200D2F1C2 /* ViewController+Gestures.swift */,
 			);
 			path = ARrehab;
 			sourceTree = "<group>";
@@ -449,6 +452,7 @@
 				159A41EF23F49283000A5376 /* ViewController.swift in Sources */,
 				19989C3D244AA617001C1C7F /* PlaceBoardButton.swift in Sources */,
 				159A41ED23F49283000A5376 /* AppDelegate.swift in Sources */,
+				EA611DC8258757D400D2F1C2 /* ViewController+Gestures.swift in Sources */,
 				19DEDE7B243EB2B20090CA15 /* ViewManipulation.swift in Sources */,
 				19089AED24380DF70054EFED /* GameBoard.swift in Sources */,
 				EA653569257DA86100941670 /* Minigame.swift in Sources */,

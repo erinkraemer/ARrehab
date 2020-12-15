@@ -138,7 +138,7 @@ class Minigame : Entity {
  Each minigame will implement its own view controller.
  Please note that the UIView must be of the PassThroughView Class.
  */
-class MinigameViewController : UIViewController {
+class MinigameViewController : ViewController {
     var minigame : Minigame? = nil
     
     func attachMinigame(minigame: Minigame) {
@@ -154,7 +154,7 @@ class MinigameViewController : UIViewController {
 class DefaultViewController : MinigameViewController {
     // TODO check if this progressView is connected to anything
     @IBOutlet var progressView: UIProgressView!
-    var subscribers: [Cancellable] = []
+    var subscriberssss: [Cancellable] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -175,7 +175,7 @@ class DefaultViewController : MinigameViewController {
             return
         }
 
-        subscribers.append(minigame!.$progress.sink(receiveValue: { (progress) in
+        subscriberssss.append(minigame!.$progress.sink(receiveValue: { (progress) in
             self.progressView.progress = progress[0]
         }))
     }

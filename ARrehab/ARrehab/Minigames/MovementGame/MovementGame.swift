@@ -62,7 +62,7 @@ class MovementGame : Minigame {
         self.coachingState = .up
         super.init()
         /// Make marbles!
-        generateCollectTargets()
+        //generateCollectTargets()
         self.progress = [0, 0]
         self.timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
             self.progress[1] = (-self.playerCollisionEntity.convert(position: SIMD3<Float>(0,0,0), to: self).y)/0.4
@@ -191,29 +191,42 @@ class MovementGame : Minigame {
         print(self.subscriptions)
     }
     
-    func generateCollectTargets() {
-        var models : [CollectTargetType : ModelComponent] = [:]
-        
-        collectTargets.forEach { (collectTargetType) in
-            do {
-                models.updateValue((try Entity.loadModel(named: collectTargetType.modelName).model!), forKey: collectTargetType)
-            } catch {
-                models.updateValue((ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .purple, isMetallic: false)])), forKey: CollectTargetType.blueMarble)
-            }
-        }
-
-        for _ in 1 ... total {
-            let (targetType, model) = models.randomElement()!
-            let posMin = targetType.minPosition
-            let posMax = targetType.maxPosition
-            let point : CollectPoint = CollectPoint(model: model, translation: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), Float.random(in: posMin[1] ... posMax[1]), Float.random(in:posMin[2] ... posMax[2])), targetType: targetType)
-//            point.collision?.filter = CollisionFilter(group: self.pointCollisionGroup, mask: self.laserCollisionGroup)
-            
-           
-           collectPointCloud.append(point)
-           self.addChild(point)
-        }
-    }
+//    func generateCollectTargets() {
+//        var models : [CollectTargetType : ModelComponent] = [:]
+//        
+//        collectTargets.forEach { (collectTargetType) in
+//            do {
+//                models.updateValue((try Entity.loadModel(named: collectTargetType.modelName).model!), forKey: collectTargetType)
+//            } catch {
+//                models.updateValue((ModelComponent(mesh: MeshResource.generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .purple, isMetallic: false)])), forKey: CollectTargetType.blueMarble)
+//            }
+//        }
+////        One of the simplest way is to add the vase as a table's child node since you don't need to update vase position whenever the table moves:
+////        tableNode.addChildNode(vaseNode)
+////        Set position of the vase to the middle of the table face. You have to calculate y or set it manually:
+////        vaseNode.position = SCNVector3(0, y, 0)
+////        The following code is to calculate y:
+////        let tableHeight = tableNode.boundingBox.max.y - tableNode.boundingBox.min.y
+////        let vaseHeight = vaseNode.boundingBox.max.y - vaseNode.boundingBox.min.y
+////        Now you can set the vase as it is on the table face:
+////        vaseNode.position = SCNVector3(0, (tableHeight + vaseHeight) / 2, 0)
+//        //let Floorwidth = Floor.boundingBox
+//        //var posx = Floor?.position(relativeTo: <#T##Entity?#>)
+//        for _ in 1 ... total {
+//            let (targetType, model) = models.randomElement()!
+//            let posMin = targetType.minPosition
+//            let posMax = targetType.maxPosition
+//            let point : CollectPoint = CollectPoint(model: model, translation: SIMD3<Float>(Float.random(in: posMin[0] ... posMax[0]), Float.random(in: posMin[1] ... posMax[1]), Float.random(in:posMin[2] ... posMax[2])), targetType: targetType)
+//            //point.position(relativeTo: Floor)
+//            //setPosition(point position: SIMD3<Float>, relativeTo referenceEntity: Entity?)
+//            point.setPosition((SIMD3<Float>(Float.random(in: -1 ... 1), 0, Float.random(in: -1 ... 1))) , relativeTo: Floor)
+////            point.collision?.filter = CollisionFilter(group: self.pointCollisionGroup, mask: self.laserCollisionGroup)
+//            point.scale = SIMD3<Float>(3.0, 3.0, 3.0)
+//            print(point.position)
+//           collectPointCloud.append(point)
+//           self.addChild(point)
+//        }
+//    }
 }
 
 /**
@@ -335,7 +348,7 @@ class MovementTarget : Entity, HasModel, HasCollision {
 /**
  CollectPoint Entity is all the objects that the pet has to collect.
  */
-class CollectPoint : Entity, HasModel, HasCollision {
+class CollectPoint : Entity, HasModel, HasCollision, HasAnchoring {
     var active = true
     var targetType : CollectTargetType
     

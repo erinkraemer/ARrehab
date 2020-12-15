@@ -18,7 +18,7 @@ import MultiProgressView
 class TraceGameViewController : MinigameViewController {
     
     /// Progress subscribers
-    var subscribers: [Cancellable] = []
+    var subscribersss: [Cancellable] = []
     
     private let backgroundView: UIView = {
         let view = PassThroughView()
@@ -160,7 +160,7 @@ class TraceGameViewController : MinigameViewController {
             return
         }
         
-        subscribers.append(minigame!.$progress.sink(receiveValue: { (progress) in
+        subscribersss.append(minigame!.$progress.sink(receiveValue: { (progress) in
             self.animateProgress(progress: progress)
         }))
     }
